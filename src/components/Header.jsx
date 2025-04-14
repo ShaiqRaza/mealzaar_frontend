@@ -1,35 +1,21 @@
 import { useUserAuth } from '../context/UserAuthContext';
-import { red1, red2, white1, black1 } from '../utils/colors.js';
 
 const Header = () => {
   const user  = useUserAuth();
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-red-800 to-red-900 shadow-md text-white`}>
-        <div className="flex justify-between items-center h-16">
-          {/* Logo/Title */}
-          <div 
-            className={`text-${red1} text-2xl font-bold cursor-pointer hover:text-${red2} transition-colors duration-200`}
-          >
-            MealZaar
-          </div>
+    <header className={`lg:h-18 md:h-17 sm:h-16 h-15 font-bold fixed flex justify-between items-center top-0 left-0 right-0 z-50 px-6 sm:px-8 lg:px-10 bg-gradient-to-b from-red-800 to-red-900 shadow-red-950 shadow-md text-white`}>
+          <div className={`text-2xl`}>Mealzaar</div>
 
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <button
-                className={`px-4 py-2 rounded-md bg-${red1} text-${white1} hover:bg-${red2} transition-colors duration-200`}
-              >
-                Profile
-              </button>
-            ) : (
-              <button
-                className={`px-4 py-2 rounded-md bg-${red1} text-${white1} hover:bg-${red2} transition-colors duration-200`}
-              >
-                Login
-              </button>
-            )}
+          <div className="flex items-center 2xl:space-x-14 lg:space-x-12 md:space-x-10 sm:space-x-8 space-x-6">
+            <button className='hover:text-orange-300 cursor-pointer'>Home</button>
+            <button className='hover:text-orange-300 cursor-pointer'>About</button>
+            {
+                user ? 
+                <button className='hover:text-orange-300 cursor-pointer'>Profile</button> : 
+                <button className='hover:text-orange-300 cursor-pointer'> Login </button>
+            }
           </div>
-        </div>
     </header>
   );
 };
