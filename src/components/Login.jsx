@@ -28,7 +28,7 @@ const Login = () => {
 
   return (
     //entire page
-    <div className="min-h-screen flex items-center justify-center bg-neutral-200 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-neutral-200 lg:pt-18 md:pt-17 pt-16 px-4 sm:px-6 lg:px-8">
       {/* Only component inside the page */}
       <div className="max-w-md w-full space-y-8 bg-white/90 backdrop-blur-sm p-8 rounded-lg shadow-lg">
         <div>
