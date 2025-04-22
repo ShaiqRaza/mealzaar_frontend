@@ -24,6 +24,7 @@ const Login = () => {
     axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/login`, formData, {withCredentials: true})
     .then(res => {
       checkUserStatus();
+      navigate('/')
       console.log(res);
     })
     .catch(err => {
