@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useUserAuth } from '../context/UserAuthContext';
 
 const KitchenDetails = () => {
   const { id } = useParams();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
   const kitchen = location.state; // Get the kitchen data from navigation state
+  const { user } = useUserAuth();
   
   useEffect(() => {
     const fetchPlans = async () => {
@@ -26,6 +29,30 @@ const KitchenDetails = () => {
 
     fetchPlans();
   }, [id]);
+
+  const handleSubscribe = async (planId) => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      setSubscriptionStatus(prev => ({ ...prev, [planId]: 'subscribing' }));
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/subscribe/${user.id}/${planId}`
+      );
+      
+      if (response.data.success) {
+        setSubscriptionStatus(prev => ({ ...prev, [planId]: 'subscribed' }));
+        // You can add a success message or redirect to a success page
+        alert('Successfully subscribed to the plan!');
+      }
+    } catch (err) {
+      console.error('Subscription error:', err);
+      setSubscriptionStatus(prev => ({ ...prev, [planId]: 'error' }));
+      alert('Failed to subscribe. Please try again.');
+    }
+  };
 
   if (!kitchen) {
     return (
@@ -117,43 +144,73 @@ const KitchenDetails = () => {
 
         {/* Meal Plans Section */}
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Meal Plans</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="space-y-8">
           {plans.map((plan) => (
             <div 
               key={plan.id} 
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              className="bg-white rounded-lg shadow-md overflow-hidden"
             >
               <div className="p-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{plan.name}</h3>
-                <p className="text-gray-600 mb-4">{plan.description}</p>
-                
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-2xl font-bold text-red-600">Rs. {plan.price}</span>
-                  <span className="text-sm text-gray-500">
-                    {plan.schedule.length} meals
-                  </span>
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="text-2xl font-semibold text-gray-900">{plan.name}</h3>
+                    <p className="text-gray-600 mt-2">{plan.description}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-3xl font-bold text-red-600">Rs. {plan.price}</span>
+                    <span className="block text-gray-500">per month</span>
+                  </div>
                 </div>
 
-                <div className="space-y-2 mb-4">
-                  {plan.schedule.slice(0, 3).map((meal, index) => (
-                    <div key={index} className="flex justify-between text-sm text-gray-600">
-                      <span>{meal.name}</span>
-                      <span>Rs. {meal.price}</span>
+                <div className="border-t pt-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Weekly Schedule</h4>
+                  
+                  {plan.schedule.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {plan.schedule.map((meal, index) => (
+                        <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="font-medium text-gray-900">{meal.name}</span>
+                            <span className="text-red-600 font-semibold">Rs. {meal.price}</span>
+                          </div>
+                          <div className="flex items-center text-sm text-gray-500">
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            {meal.day}
+                            <span className="mx-2">•</span>
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {new Date(meal.timing).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                  {plan.schedule.length > 3 && (
-                    <div className="text-sm text-gray-500">
-                      +{plan.schedule.length - 3} more meals
-                    </div>
+                  ) : (
+                    <p className="text-gray-500 italic">No meals scheduled for this plan</p>
                   )}
                 </div>
 
-                <button 
-                  onClick={() => navigate(`/kitchen/${kitchen.id}`, { state: { kitchen } })}
-                  className="block w-full text-center bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors duration-200"
-                >
-                  View Details
-                </button>
+                <div className="mt-6">
+                  <button
+                    onClick={() => handleSubscribe(plan.id)}
+                    disabled={subscriptionStatus[plan.id] === 'subscribing'}
+                    className={`w-full py-3 px-4 rounded-md font-semibold transition-colors duration-200 ${
+                      subscriptionStatus[plan.id] === 'subscribed'
+                        ? 'bg-green-600 text-white'
+                        : subscriptionStatus[plan.id] === 'subscribing'
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : 'bg-red-600 text-white hover:bg-red-700'
+                    }`}
+                  >
+                    {subscriptionStatus[plan.id] === 'subscribed'
+                      ? 'Subscribed'
+                      : subscriptionStatus[plan.id] === 'subscribing'
+                      ? 'Subscribing...'
+                      : 'Subscribe to Plan'}
+                  </button>
+                </div>
               </div>
             </div>
           ))}

@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Login, Signup, Home, KitchenDetails } from './components/index.js';
+import { Login, Signup, Home, KitchenDetails, Profile } from './components/index.js';
 import Layout from './Layout.jsx';
 const router = createBrowserRouter([
   {
@@ -21,6 +21,10 @@ const router = createBrowserRouter([
         {
           path: "kitchen/:id",
           element: <KitchenDetails />,
+        },
+        {
+          path: "profile",
+          element: <Profile />,
         }
     ]
   }
