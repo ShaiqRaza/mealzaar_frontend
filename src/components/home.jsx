@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const [kitchens, setKitchens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchKitchens = async () => {
@@ -95,12 +96,14 @@ const Home = () => {
                   {kitchen.phone}
                 </div>
 
-                <Link 
-                  to={`/kitchen/${kitchen.id}`}
+                <button 
+                  onClick={() => {
+                    navigate(`/kitchen/${kitchen.id}`, { state:  kitchen  });
+                  }}
                   className="block w-full text-center bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors duration-200"
                 >
                   View Details
-                </Link>
+                </button>
               </div>
             </div>
           ))}
