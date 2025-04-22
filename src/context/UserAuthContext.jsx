@@ -30,7 +30,7 @@ export const UserAuthProvider = ({ children }) => {
     checkUserStatus();
   }, []);
 
-  const value = user || null; //user value will be null if it is not loggedin 
+  const value = {user, checkUserStatus} || null; //user value will be null if it is not loggedin 
 
   return (
     <UserAuthContext.Provider value={value}>

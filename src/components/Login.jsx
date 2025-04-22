@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router';
+import { useUserAuth } from '../context/UserAuthContext';
 
 const Login = () => {
+  const {checkUserStatus} = useUserAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -14,11 +18,12 @@ const Login = () => {
       [name]: value
     }));
   };
-
+  
   const handleSubmission = (e) => {
     e.preventDefault();
     axios.post(`${import.meta.env.VITE_BACKEND_URL}/users/login`, formData, {withCredentials: true})
     .then(res => {
+      checkUserStatus();
       console.log(res);
     })
     .catch(err => {
@@ -36,7 +41,7 @@ const Login = () => {
             Welcome to MealZaar
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to continue subscribing plans
+            Sign in to continue subscribing meal plans
           </p>
         </div>
 
@@ -113,6 +118,7 @@ const Login = () => {
 
           <div className="mt-6">
             <button
+              onClick={() => navigate('/signup')}
               type="button"
               className="w-full flex justify-center py-2 px-4 border border-red-600 hover:bg-red-600 hover:text-white text-sm font-medium rounded-md text-red-600 bg-white focus:outline-none transition-colors duration-200"
             >
